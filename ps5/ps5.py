@@ -216,8 +216,35 @@ def readTriggerConfig(filename):
     # Build a set of triggers from it and
     # return the appropriate ones
     triggers = []
+    trig_set = {}
     for line in all:
-        #
+        if re.match("t[0-9]", line):
+            tags = line.split(None, 2)
+            name, trig_type, term = tags
+            if trig_type == "TITLE":
+                trig_set[name] = TitleTrigger(term)
+            elif trig_type == "SUBJECT":
+                trig_set[name] = SubjectTrigger(term)
+            elif trig_type == "SUMMARY":
+                trig_set[name] = SummaryTrigger(term)
+            elif trig_type =="PHRASE":
+                trig_set[name] = PhraseTrigger(term)
+            elif trig_type == "NOT":
+                trig_set[name] = NotTrigger(term)
+            elif trig_type == "AND":
+                name1, name2 = term.split()
+                trig_set[name] = AndTrigger(trig_set[name1], trig_set[name2])
+            elif trig_type == "OR":
+                name1, name2 = term.split()
+                trig_set[name] = OrTrigger(trig_set[name1], trig_set[name2])
+        if re.match("ADD", line):
+            linesplit = line.split()
+            for name in linesplit[1:]:
+                triggers.append(trig_set[name])
+        #else:
+            #print trig_set
+    return triggers
+            
     
 import thread
 
@@ -232,7 +259,7 @@ def main_thread(p):
     
     # TODO: Problem 11
     # After implementing readTriggerConfig, uncomment this line 
-    #triggerlist = readTriggerConfig("triggers.txt")
+    triggerlist = readTriggerConfig("triggers.txt")
 
     guidShown = []
     

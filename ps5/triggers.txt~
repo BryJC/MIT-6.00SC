@@ -3,10 +3,10 @@
 #  news stories!
 
 # title trigger named t1
-t1 TITLE Clinton
+t1 TITLE marriage
 
 # subject trigger named t2
-t2 SUBJECT Obama
+t2 SUBJECT Sotomayor
 
 # phrase trigger named t3
 t3 PHRASE Supreme Court

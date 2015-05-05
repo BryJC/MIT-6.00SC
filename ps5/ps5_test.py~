@@ -103,7 +103,7 @@ class ProblemSet5(unittest.TestCase):
         s1 = SubjectTrigger('SOFT')
         s2  = SubjectTrigger('soft')
         for trig in [s1, s2]:
-            self.assertTrue(trig.evaluate(koala), "SubjectTrigger failed to fire when the word appeared in the title")
+            self.assertTrue(trig.evaluate(koala), "SubjectTrigger failed to fire when the word appeared in the subject")
             self.assertTrue(trig.evaluate(pillow), "SubjectTrigger failed to fire when the word had punctuation on it")
             self.assertTrue(trig.evaluate(soda), "SubjectTrigger failed to fire when the case was different")
             self.assertTrue(trig.evaluate(pink), "SubjectTrigger failed to fire when the word had an apostrophe on it")
@@ -111,7 +111,7 @@ class ProblemSet5(unittest.TestCase):
             self.assertTrue(trig.evaluate(caps), "SubjectTrigger is case-sensitive and shouldn't be")
             
             self.assertFalse(trig.evaluate(microsoft), "SubjectTrigger fired when the word was present, but not as its own word (e.g. 'soft' and 'Microsoft)'")
-            self.assertFalse(trig.evaluate(nothing), "SubjectTrigger fired when the word wasn't really present in the title")
+            self.assertFalse(trig.evaluate(nothing), "SubjectTrigger fired when the word wasn't really present in the subject")
         add_points(5)
 
     def test3SummaryTrigger(self):
@@ -128,7 +128,7 @@ class ProblemSet5(unittest.TestCase):
         s1 = SummaryTrigger('SOFT')
         s2  = SummaryTrigger('soft')
         for trig in [s1, s2]:
-            self.assertTrue(trig.evaluate(koala), "SummaryTrigger failed to fire when the word appeared in the title")
+            self.assertTrue(trig.evaluate(koala), "SummaryTrigger failed to fire when the word appeared in the summary.")
             self.assertTrue(trig.evaluate(pillow), "SummaryTrigger failed to fire when the word had punctuation on it")
             self.assertTrue(trig.evaluate(soda), "SummaryTrigger failed to fire when the case was different")
             self.assertTrue(trig.evaluate(pink), "SummaryTrigger failed to fire when the word had an apostrophe on it")
@@ -136,7 +136,7 @@ class ProblemSet5(unittest.TestCase):
             self.assertTrue(trig.evaluate(caps), "SummaryTrigger is case-sensitive and shouldn't be")
             
             self.assertFalse(trig.evaluate(microsoft), "SummaryTrigger fired when the word was present, but not as its own word (e.g. 'soft' and 'Microsoft)'")
-            self.assertFalse(trig.evaluate(nothing), "SummaryTrigger fired when the word wasn't really present in the title")
+            self.assertFalse(trig.evaluate(nothing), "SummaryTrigger fired when the word wasn't really present in the summary")
         add_points(5)
 
     def test4NotTrigger(self):
@@ -207,8 +207,8 @@ class ProblemSet5(unittest.TestCase):
         nob = NewsStory('', '', "something something new york city", '', '')
         noc = NewsStory('', '', '', "something something new york city", '')
 
-        triggers = [self.tt, self.tt2, self.ft]
-        stories = [pt, a, b, c, noa, nob, noc]
+        triggers = [pt, self.tt, self.ft]
+        stories = [a, b, c, noa, nob, noc]
         filtered_stories = filter_stories(stories, triggers)
         for story in stories:
             self.assertTrue(story in filtered_stories)

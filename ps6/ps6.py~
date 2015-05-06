@@ -279,7 +279,7 @@ def runSimulation(num_robots, speed, width, height, min_coverage, num_trials, ro
     robot_type: class of robot to be instantiated (e.g. Robot or
                 RandomWalkRobot)
     """
-    visualize = True
+    visualize = False
     time_steps_trials = []
     for trial in range(num_trials):
         if visualize:

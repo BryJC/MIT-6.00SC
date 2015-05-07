@@ -3,8 +3,8 @@
 # Collaborators:
 # Time:
 
-import numpy as np
-import random as rand
+import numpy
+import random
 import pylab
 
 ''' 
@@ -145,3 +145,4 @@ def simulationWithoutDrug():
     """
 
     # TODO
+

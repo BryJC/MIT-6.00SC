@@ -4,8 +4,8 @@
 # Time:
 
 import numpy as np
-import random
-import pylab
+import random as rand
+import matplotlib.pyplot as plt
 
 ''' 
 Begin helper code
@@ -39,7 +39,8 @@ class SimpleVirus(object):
         maxBirthProb: Maximum reproduction probability (a float between 0-1)        
         clearProb: Maximum clearance probability (a float between 0-1).
         """
-
+        self.maxBirthProb = maxBirthProb
+        self.clearProb = clearProb
         # TODO
 
     def doesClear(self):
@@ -49,7 +50,10 @@ class SimpleVirus(object):
         returns: True with probability self.clearProb and otherwise returns
         False.
         """
-
+        eventClear = rand.random()
+        if eventClear < self.clearProb:
+            return True
+        return False
         # TODO
 
     
@@ -73,7 +77,11 @@ class SimpleVirus(object):
         maxBirthProb and clearProb values as this virus. Raises a
         NoChildException if this virus particle does not reproduce.               
         """
-
+        eventBirth = rand.random()
+        if eventBirth < self.maxBirthProb * (1 - popDensity):
+            new_virus = SimpleVirus(self.maxBirthProb, self.clearProb)
+            return new_virus
+        raise NoChildException()
         # TODO
 
 
@@ -97,7 +105,8 @@ class SimplePatient(object):
 
         maxPop: the  maximum virus population for this patient (an integer)
         """
-
+        self.viruses = viruses
+        self.maxPop = maxPop
         # TODO
 
 
@@ -107,7 +116,7 @@ class SimplePatient(object):
         Gets the current total virus population. 
         returns: The total virus population (an integer)
         """
-
+        return len(self.viruses)
         # TODO        
 
 
@@ -127,7 +136,25 @@ class SimplePatient(object):
         returns: The total virus population at the end of the update (an
         integer)
         """
-
+        savedViruses = []
+        for virus in self.viruses:
+            if not virus.doesClear():
+                savedViruses.append(virus)
+                
+        newViruses = []  
+        popDensity = float(len(savedViruses))/ self.maxPop      
+        for virus in savedViruses: 
+            newViruses.append(virus)
+            if len(newViruses) < self.maxPop:               
+                try:
+                    newViruses.append(virus.reproduce(popDensity))
+                except NoChildException:
+                    continue
+            else:
+                break
+        self.viruses = newViruses
+        return self.getTotalPop()
+            
         # TODO
 
 
@@ -135,13 +162,44 @@ class SimplePatient(object):
 #
 # PROBLEM 2
 #
-def simulationWithoutDrug():
+def simulationWithoutDrug(virus_type='SimpleVirus', maxBirthProb=0.1, \
+                          clearProb=0.05, patient_type='SimplePatient', \
+                          num_viruses=100, maxPop=1000, time_steps=300, \
+                          num_trials = 20):
 
     """
     Run the simulation and plot the graph for problem 2 (no drugs are used,
     viruses do not have any drug resistance).    
     Instantiates a patient, runs a simulation for 300 timesteps, and plots the
     total virus population as a function of time.    
-    """
-
+    """  
+    trial_results = []
+    for trial in xrange(1, num_trials+1):
+        print "processing trial...{}".format(trial)
+        total_virus_pop = [num_viruses]
+        if virus_type == 'SimpleVirus':
+            newVirus = SimpleVirus(maxBirthProb, clearProb)
+            viruses = [newVirus] * num_viruses
+            #print "Total length of virus list= {}".format(len(viruses))
+        if patient_type == 'SimplePatient':
+            newPatient = SimplePatient(viruses, maxPop)
+        for step in xrange(time_steps):        
+            total_virus_pop.append(newPatient.update())
+        for step in xrange(len(total_virus_pop)):
+            try:
+                trial_results[step] += total_virus_pop[step]
+            except IndexError:
+                trial_results.append(total_virus_pop[step])
+                
+    avg_trial_results = []
+    for cumulative in trial_results:
+        avg_trial_results.append(float(cumulative)/num_trials)        
+        
+    #return "Total length of total_virus_pop= {}".format(total_virus_pop)
+    plt.plot(xrange(time_steps + 1), avg_trial_results, 'ro')
+    plt.title("Viral population within patient over {} time-steps".format(time_steps))
+    plt.xlabel('Time-steps')
+    plt.ylabel('Total viral population')
+    plt.legend(["average virus population over {} trials".format(num_trials)], loc=4)
+    plt.show()
     # TODO

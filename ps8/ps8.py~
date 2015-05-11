@@ -105,21 +105,20 @@ class ResistantVirus(SimpleVirus):
         maxBirthProb and clearProb values as this virus. Raises a
         NoChildException if this virus particle does not reproduce.         
         """
-        if all([False if not self.resist[drug] else True for drug in activeDrugs]):
+        if activeDrugs != [] and any([self.isResistantTo(drug) for drug in activeDrugs]) == False:
             raise NoChildException()
         eventBirth = rand.random()
-        if eventBirth < self.maxBirthProb * (1 - popDensity):
+        if eventBirth <= self.maxBirthProb * (1 - popDensity):
             new_resist = {}
             for drug in self.resist:
+                mutChance = rand.random()
                 if self.resist[drug] == True:
-                    retainResist = rand.random()
-                    if retainResist <= 1-self.mutProb
+                    if mutChance <= (1-self.mutProb):
                         new_resist[drug] = True 
                     else:
                         new_resist[drug] = False
-                elif self.resist[drug] == False
-                    getResist = rand.random()
-                    if getResist <= 1-self.mutProb
+                elif self.resist[drug] == False:
+                    if mutChance <= (1-self.mutProb):
                         new_resist[drug] = False 
                     else:
                         new_resist[drug] = True
@@ -193,10 +192,19 @@ class Patient(SimplePatient):
         returns: the population of viruses (an integer) with resistances to all
         drugs in the drugResist list.
         """
-        totalResistance = 0
+        totalResistantV = 0
         for virus in self.viruses:
             #if all self.resist == True for all drugs in drugResist:
-                totalResistance += 1
+            resistantV = True
+            for drug in drugResist:
+                if virus.resist[drug] == True:
+                    continue
+                else:
+                    resistantV = False
+                    break
+            if resistantV == True:
+                totalResistantV += 1
+        return totalResistantV
             
         # TODO
                    
@@ -231,7 +239,7 @@ class Patient(SimplePatient):
             newViruses.append(virus)
             if len(newViruses) < self.maxPop:               
                 try:
-                    newViruses.append(virus.reproduce(popDensity, self.getPrescriptions))
+                    newViruses.append(virus.reproduce(popDensity, self.prescrip))
                 except NoChildException:
                     continue
             else:
@@ -246,7 +254,12 @@ class Patient(SimplePatient):
 # PROBLEM 2
 #
 
-def simulationWithDrug():
+def simulationWithDrug(virus_type='ResistantVirus', maxBirthProb=0.1, \
+                          clearProb=0.05, mutProb = 0.005, 
+                          patient_type='Patient', num_viruses=100, \
+                          maxPop=1000, resistances = {'guttagonol': False}, \
+                          prescriptions = ['guttagonol'], \
+                          time_steps=300, num_trials = 20):
 
     """
 
@@ -256,6 +269,53 @@ def simulationWithDrug():
     total virus population vs. time and guttagonol-resistant virus population
     vs. time are plotted
     """
+    trial_results = []
+    trial_results_resist = []
+    for trial in xrange(1, num_trials+1):
+        print "processing trial...{}".format(trial)
+        total_virus_pop = []
+        total_virus_pop_resist = []
+        
+        if virus_type == 'ResistantVirus':
+            newVirus = ResistantVirus(maxBirthProb, clearProb, resistances, mutProb)
+            viruses = [newVirus] * num_viruses
+            
+        if patient_type == 'Patient':
+            newPatient = Patient(viruses, maxPop)
+            
+        for step in xrange(time_steps+1):
+            if step == (time_steps-150):
+                newPatient.addPrescription(prescriptions[0])                   
+            total_virus_pop.append(newPatient.update())
+            total_virus_pop_resist.append(newPatient.getResistPop([prescriptions[0]]))
+            
+        for step in xrange(time_steps+1):
+            try:
+                trial_results[step] += total_virus_pop[step]
+                trial_results_resist[step] += total_virus_pop_resist[step]
+            except IndexError:
+                trial_results.append(total_virus_pop[step])
+                trial_results_resist.append(total_virus_pop_resist[step])
+
+    avg_trial_results = []
+    avg_trial_results_resist = []
+    for cumulative in trial_results:
+        avg_trial_results.append(float(cumulative)/num_trials)
+    for cumulative in trial_results_resist:
+        avg_trial_results_resist.append(float(cumulative)/num_trials)        
+        
+    #return "Total length of total_virus_pop= {}".format(total_virus_pop)
+    plt.plot(xrange(time_steps + 1), avg_trial_results, 'ro')
+    plt.plot(xrange(time_steps + 1), avg_trial_results_resist, 'go')
+    plt.title("Virus population within a patient over {} time-steps".format(time_steps))
+    plt.xlabel('Time-steps')
+    plt.ylabel('Total virus population')
+    plt.annotate('{} administration\n@ 150 time steps'.format(prescriptions[0]), \
+            xy=(149, avg_trial_results[149]), xytext=(185, 300), \
+            arrowprops=dict(facecolor='black', shrink=0.05))
+    plt.legend(["average total virus population\n over {} trials".format(num_trials), \
+                "average total resistant-virus population\n over {} trials".format(num_trials)], loc=0)
+    plt.show()
     # TODO
 
 
@@ -274,7 +334,14 @@ def simulationDelayedTreatment():
     150, 75, 0 timesteps (followed by an additional 150 timesteps of
     simulation).    
     """
-
+    time_delays = [300, 150, 75, 0]
+    for delay in time_delays:
+        sim = simulationWithDrug(virus_type='ResistantVirus', maxBirthProb=0.1, \
+                          clearProb=0.05, mutProb = 0.005, 
+                          patient_type='Patient', num_viruses=100, \
+                          maxPop=1000, resistances = {'guttagonol': False}, \
+                          prescriptions = ['guttagonol'], \
+                          time_steps=delay, num_trials = 20)
     # TODO
 
 #

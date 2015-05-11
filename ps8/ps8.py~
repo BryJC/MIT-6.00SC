@@ -336,7 +336,7 @@ def simulationWithDrug(virus_type='ResistantVirus', maxBirthProb=0.1, \
 # PROBLEM 3
 #        
 
-def simulationDelayedTreatment():
+def simulationDelayedTreatment(time_delays = [0, 75, 150, 300]):
 
     """
     Runs simulations and make histograms for problem 5.
@@ -345,16 +345,23 @@ def simulationDelayedTreatment():
     Histograms of final total virus populations are displayed for delays of 300,
     150, 75, 0 timesteps (followed by an additional 150 timesteps of
     simulation).    
-    """
-    time_delays = [0, 75, 150, 300]
-    sim_result_collect = []
+    """    
+    sim_results_collect = []   
     for delay in time_delays:
+        print "Starting simulation for delayed treatment of {} days\n".format(delay)
         sim_results = []
-        for i in xrange(30):
+        for i in xrange(5):
             all_viruses, resist_viruses = simulationWithDrug(time_steps=delay, plot='N')
             sim_results.append(all_viruses[-1])
-        sim_result.collect.append(sim_results)
-    plt.hist(x=sim_results_collect, y=range_of_numbers within sim_results_collect)
+        sim_results_collect.append(sim_results)
+    #plt.hist(x=sim_results_collect, y=range_of_numbers within sim_results_collect)
+    sim_array = np.array(sim_results_collect)
+    for i in xrange(4):
+        plt.subplot(4, 1, i+1)
+        plt.hist(sim_array[i])
+        plt.ylabel('Number of Patients')
+        plt.xlabel('Virus population remaining after {} trials'.format(time_delays[i]))
+    plt.show()
         
             
         

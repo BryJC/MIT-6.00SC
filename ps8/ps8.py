@@ -255,11 +255,11 @@ class Patient(SimplePatient):
 #
 
 def simulationWithDrug(virus_type='ResistantVirus', maxBirthProb=0.1, \
-                          clearProb=0.05, mutProb = 0.005, 
+                          clearProb=0.05, mutProb=0.005, 
                           patient_type='Patient', num_viruses=100, \
-                          maxPop=1000, resistances = {'guttagonol': False}, \
-                          prescriptions = ['guttagonol'], \
-                          time_steps=300, num_trials = 20):
+                          maxPop=1000, resistances={'guttagonol': False}, \
+                          prescriptions=['guttagonol'], \
+                          time_steps=300, num_trials=20, plot='Y'):
 
     """
 
@@ -283,38 +283,50 @@ def simulationWithDrug(virus_type='ResistantVirus', maxBirthProb=0.1, \
         if patient_type == 'Patient':
             newPatient = Patient(viruses, maxPop)
             
-        for step in xrange(time_steps+1):
-            if step == (150):
-                newPatient.addPrescription(prescriptions[0])                   
+        for step in xrange(time_steps+1):                  
             total_virus_pop.append(newPatient.update())
             total_virus_pop_resist.append(newPatient.getResistPop([prescriptions[0]]))
             
-        for step in xrange(time_steps+1):
+        newPatient.addPrescription(prescriptions[0])
+        for step in xrange(150):
+            total_virus_pop.append(newPatient.update())
+            total_virus_pop_resist.append(newPatient.getResistPop([prescriptions[0]]))
+            
+        for step in xrange(time_steps+150):
             try:
                 trial_results[step] += total_virus_pop[step]
                 trial_results_resist[step] += total_virus_pop_resist[step]
             except IndexError:
                 trial_results.append(total_virus_pop[step])
                 trial_results_resist.append(total_virus_pop_resist[step])
+                
+        #print "Len trial_results: {}".format(len(trial_results))
+        #print "Len trial_results_resist: {}".format(len(trial_results_resist))
 
     avg_trial_results = []
     avg_trial_results_resist = []
     for cumulative in trial_results:
         avg_trial_results.append(float(cumulative)/num_trials)
     for cumulative in trial_results_resist:
-        avg_trial_results_resist.append(float(cumulative)/num_trials)        
+        avg_trial_results_resist.append(float(cumulative)/num_trials)
+        
+    if plot=='Y':
+        pass
+    elif plot=='N':
+        return avg_trial_results, avg_trial_results_resist        
         
     #return "Total length of total_virus_pop= {}".format(total_virus_pop)
-    plt.plot(xrange(time_steps + 1), avg_trial_results, 'ro')
-    plt.plot(xrange(time_steps + 1), avg_trial_results_resist, 'go')
+    plt.plot(xrange(time_steps + 150), avg_trial_results, 'ro')
+    plt.plot(xrange(time_steps + 150), avg_trial_results_resist, 'go')
     plt.title("Virus population within a patient over {} time-steps".format(time_steps))
     plt.xlabel('Time-steps')
     plt.ylabel('Total virus population')
-    plt.annotate('{} administration\n@ 150 time steps'.format(prescriptions[0]), \
-            xy=(149, avg_trial_results[149]), xytext=(185, 300), \
+    plt.annotate('{} administration\n@ {} time steps'.format(prescriptions[0], time_steps), \
+            xy=(time_steps, avg_trial_results[time_steps]), \
+            xytext=(time_steps+50, avg_trial_results[time_steps]-200), \
             arrowprops=dict(facecolor='black', shrink=0.05))
-    plt.legend(["average total virus population\n over {} trials".format(num_trials), \
-                "average total resistant-virus population\n over {} trials".format(num_trials)], loc=0)
+    plt.legend(["average total virus\npopulation over {} trials".format(num_trials), \
+                "average total resistant-virus\npopulation over {} trials".format(num_trials)], loc=0)
     plt.show()
     # TODO
 
@@ -334,14 +346,18 @@ def simulationDelayedTreatment():
     150, 75, 0 timesteps (followed by an additional 150 timesteps of
     simulation).    
     """
-    time_delays = [300, 150, 75, 0]
+    time_delays = [0, 75, 150, 300]
+    sim_result_collect = []
     for delay in time_delays:
-        sim = simulationWithDrug(virus_type='ResistantVirus', maxBirthProb=0.1, \
-                          clearProb=0.05, mutProb = 0.005, 
-                          patient_type='Patient', num_viruses=100, \
-                          maxPop=1000, resistances = {'guttagonol': False}, \
-                          prescriptions = ['guttagonol'], \
-                          time_steps=delay, num_trials = 20)
+        sim_results = []
+        for i in xrange(30):
+            all_viruses, resist_viruses = simulationWithDrug(time_steps=delay, plot='N')
+            sim_results.append(all_viruses[-1])
+        sim_result.collect.append(sim_results)
+    plt.hist(x=sim_results_collect, y=range_of_numbers within sim_results_collect)
+        
+            
+        
     # TODO
 
 #

@@ -350,20 +350,28 @@ def simulationDelayedTreatment(time_delays = [0, 75, 150, 300]):
     for delay in time_delays:
         print "Starting simulation for delayed treatment of {} days\n".format(delay)
         sim_results = []
-        for i in xrange(5):
+        for i in xrange(50):
             all_viruses, resist_viruses = simulationWithDrug(time_steps=delay, plot='N')
             sim_results.append(all_viruses[-1])
         sim_results_collect.append(sim_results)
+        print sim_results
     #plt.hist(x=sim_results_collect, y=range_of_numbers within sim_results_collect)
     sim_array = np.array(sim_results_collect)
+
     for i in xrange(4):
         plt.subplot(4, 1, i+1)
-        plt.hist(sim_array[i])
-        plt.ylabel('Number of Patients')
+        if i == 0:
+            plt.title("Relationship between delayed drug administration and final viral count")
+        plt.hist(sim_array[i], bins=20)
+        plt.ylabel('# of Patients')
         plt.xlabel('Virus population remaining after {} trials'.format(time_delays[i]))
     plt.show()
+    
+    ###NOTES
     """
-    trial worked, need to reconfigure plt.hist args, labels, titles, etc
+    need better axes for histograms (i.e. normalized)
+    also either 1000 ceiling is way too low or drug algo is killing to quickly,
+    need to check solutions
     """    
             
         

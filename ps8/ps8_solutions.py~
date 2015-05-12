@@ -81,6 +81,5 @@ def runDrugSimulation (numViruses, maxPop, maxBirthProb, clearProb, resistances,
         if i == numStepsBeforeDrugApplied:
             patient.addPrescription("guttagonol")
         numVirusesEachStep.append(patient.update())
-        print numVirusesEachStep
 
     return numVirusesEachStep

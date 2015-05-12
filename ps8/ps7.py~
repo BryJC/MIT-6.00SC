@@ -164,7 +164,7 @@ class SimplePatient(object):
 #
 def simulationWithoutDrug(virus_type='SimpleVirus', maxBirthProb=0.1, \
                           clearProb=0.05, patient_type='SimplePatient', \
-                          num_viruses=100, maxPop=100000, time_steps=300, \
+                          num_viruses=100, maxPop=1000, time_steps=300, \
                           num_trials = 20):
 
     """

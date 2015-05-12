@@ -250,7 +250,7 @@ class ResistantVirus(SimpleVirus):
         otherwise.
         """
         
-        #assert drug in self.resistances.keys()
+        assert drug in self.resistances.keys()
         if drug in self.resistances:
           return self.resistances[drug]
         else:

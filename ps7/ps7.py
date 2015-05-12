@@ -78,7 +78,7 @@ class SimpleVirus(object):
         NoChildException if this virus particle does not reproduce.               
         """
         eventBirth = rand.random()
-        if eventBirth < self.maxBirthProb * (1 - popDensity):
+        if eventBirth <= self.maxBirthProb * (1 - popDensity):
             new_virus = SimpleVirus(self.maxBirthProb, self.clearProb)
             return new_virus
         raise NoChildException()
@@ -177,14 +177,18 @@ def simulationWithoutDrug(virus_type='SimpleVirus', maxBirthProb=0.1, \
     for trial in xrange(1, num_trials+1):
         print "processing trial...{}".format(trial)
         total_virus_pop = [num_viruses]
+        
         if virus_type == 'SimpleVirus':
             newVirus = SimpleVirus(maxBirthProb, clearProb)
             viruses = [newVirus] * num_viruses
             #print "Total length of virus list= {}".format(len(viruses))
+            
         if patient_type == 'SimplePatient':
             newPatient = SimplePatient(viruses, maxPop)
+            
         for step in xrange(time_steps):        
             total_virus_pop.append(newPatient.update())
+            
         for step in xrange(len(total_virus_pop)):
             try:
                 trial_results[step] += total_virus_pop[step]
@@ -197,9 +201,9 @@ def simulationWithoutDrug(virus_type='SimpleVirus', maxBirthProb=0.1, \
         
     #return "Total length of total_virus_pop= {}".format(total_virus_pop)
     plt.plot(xrange(time_steps + 1), avg_trial_results, 'ro')
-    plt.title("Viral population within patient over {} time-steps".format(time_steps))
+    plt.title("Virus population within a patient over {} time-steps".format(time_steps))
     plt.xlabel('Time-steps')
-    plt.ylabel('Total viral population')
+    plt.ylabel('Total virus population')
     plt.legend(["average virus population over {} trials".format(num_trials)], loc=4)
     plt.show()
     # TODO

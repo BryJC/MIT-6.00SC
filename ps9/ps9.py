@@ -81,7 +81,7 @@ def cmpWork(subInfo1=(0,0), subInfo2=(0,0)):
     in (value, work) tuple in subInfo2
     """
     # TODO...
-    if subInfo1[1] < sunInfo[1]:
+    if subInfo1[1] < subInfo2[1]:
         return True
     return False
 
@@ -91,7 +91,7 @@ def cmpRatio(subInfo1=(0,0), subInfo2=(0,0)):
     GREATER than value/work in (value, work) tuple in subInfo2
     """
     # TODO...
-    if subInfo[0]/float(subInfo[1]) > sunInfo2[0]/float(subInfo2[1]):
+    if subInfo1[0]/float(subInfo1[1]) > subInfo2[0]/float(subInfo2[1]):
         return True
     return False
 
@@ -120,18 +120,19 @@ def greedyAdvisor(subjects, maxWork, comparator):
                 i += 1
             elif compare is False:
                 SubjCopy.append([subj, val_work])                 
-    optimal = {}
-    totalValue= 0.0
-    totalWork = 0.0
-    n = 0    
-    while totalWork < maxWork and i < len(SubjCopy):
-        if (totalWork + SubjCopy[n][1][1]) <= maxWeight:
-            optimal[SubjCopy[n][0]] = SubjCopy[n][1][1]
-            totalWeight += SubjCopy[n][1][1]
-            totalVal += SubjCopy[n][1][0]
-        n += 1
+    #optimal = {}
+    #totalValue= 0.0
+    #totalWork = 0.0
+    #n = 0    
+    #while totalWork < maxWork and i < len(SubjCopy):
+    #    if (totalWork + SubjCopy[n][1][1]) <= maxWeight:
+    #        optimal[SubjCopy[n][0]] = SubjCopy[n][1][1]
+    #        totalWeight += SubjCopy[n][1][1]
+    #        totalVal += SubjCopy[n][1][0]
+    #    n += 1
         
-    return SubjCopy, optimal, totalValue, totalWork
+    return SubjCopy
+    #, optimal, totalValue, totalWork
         
     #def greedy(Items, maxWeight, keyFcn): 
         #assert type(Items) == list and maxWeight >= 0 

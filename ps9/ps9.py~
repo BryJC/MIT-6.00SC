@@ -1,0 +1,165 @@
+# 6.00 Problem Set 9
+#
+# Intelligent Course Advisor
+#
+# Name:
+# Collaborators:
+# Time:
+#
+
+SUBJECT_FILENAME = "subjects.txt"
+SHORT_SUBJECT_FILENAME = "shortened_subjects.txt"
+VALUE, WORK = 0, 1
+
+#
+# Problem 1: Building A Subject Dictionary
+#
+def loadSubjects(filename):
+    """
+    Returns a dictionary mapping subject name to (value, work), where the name
+    is a string and the value and work are integers. The subject information is
+    read from the file named by the string filename. Each line of the file
+    contains a string of the form "name,value,work".
+
+    returns: dictionary mapping subject name to (value, work)
+    """
+
+    # The following sample code reads lines from the specified file and prints
+    # each one.
+    #inputFile = open(filename)
+    #for line in inputFile:
+        #print line
+
+    # TODO: Instead of printing each line, modify the above to parse the name,
+    # value, and work of each subject and create a dictionary mapping the name
+    # to the (value, work).
+    class_value = {}
+    inputFile = open(filename)
+    for line in inputFile:
+        name, value, work = line.split(',')
+        class_value[name] = (int(value), int(work))
+    return class_value
+
+def printSubjects(subjects):
+    """
+    Prints a string containing name, value, and work of each subject in
+    the dictionary of subjects and total value and work of all subjects
+    """
+    totalVal, totalWork = 0,0
+    if len(subjects) == 0:
+        return 'Empty SubjectList'
+    res = 'Course\tValue\tWork\n======\t====\t=====\n'
+    subNames = subjects.keys()
+    subNames.sort()
+    for s in subNames:
+        val = subjects[s][VALUE]
+        work = subjects[s][WORK]
+        res = res + s + '\t' + str(val) + '\t' + str(work) + '\n'
+        totalVal += val
+        totalWork += work
+    res = res + '\nTotal Value:\t' + str(totalVal) +'\n'
+    res = res + 'Total Work:\t' + str(totalWork) + '\n'
+    print res
+
+#
+# Problem 2: Subject Selection By Greedy Optimization
+#
+
+def cmpValue(subInfo1=(0,0), subInfo2=(0,0)):
+    """
+    Returns True if value in (value, work) tuple subInfo1 is GREATER than
+    value in (value, work) tuple in subInfo2
+    """
+    # TODO...
+    if subInfo1[0] > subInfo2[0]:
+        return True
+    return False
+
+def cmpWork(subInfo1=(0,0), subInfo2=(0,0)):
+    """
+    Returns True if work in (value, work) tuple subInfo1 is LESS than than work
+    in (value, work) tuple in subInfo2
+    """
+    # TODO...
+    if subInfo1[1] < sunInfo[1]:
+        return True
+    return False
+
+def cmpRatio(subInfo1=(0,0), subInfo2=(0,0)):
+    """
+    Returns True if value/work in (value, work) tuple subInfo1 is 
+    GREATER than value/work in (value, work) tuple in subInfo2
+    """
+    # TODO...
+    if subInfo[0]/float(subInfo[1]) > sunInfo2[0]/float(subInfo2[1]):
+        return True
+    return False
+
+def greedyAdvisor(subjects, maxWork, comparator):
+    """
+    Returns a dictionary mapping subject name to (value, work) which includes
+    subjects selected by the algorithm, such that the total work of subjects in
+    the dictionary is not greater than maxWork.  The subjects are chosen using
+    a greedy algorithm.  The subjects dictionary should not be mutated.
+
+    subjects: dictionary mapping subject name to (value, work)
+    maxWork: int >= 0
+    comparator: function taking two tuples and returning a bool
+    returns: dictionary mapping subject name to (value, work)
+    """
+    # TODO...
+    assert type(subjects) == dict and maxWork >= 0
+    SubjCopy = []
+    for subj, val_work in subjects.iteritems():
+        if SubjCopy == []:
+            SubjCopy = [[subj, val_work]]
+        i = 0
+        while i < len(SubjCopy):
+            compare = comparator(SubjCopy[i], val_work)
+            if compare is True:
+                i += 1
+            elif compare is False:
+                SubjCopy.append([subj, val_work])                 
+    optimal = {}
+    totalValue= 0.0
+    totalWork = 0.0
+    n = 0    
+    while totalWork < maxWork and i < len(SubjCopy):
+        if (totalWork + SubjCopy[n][1][1]) <= maxWeight:
+            optimal[SubjCopy[n][0]] = SubjCopy[n][1][1]
+            totalWeight += SubjCopy[n][1][1]
+            totalVal += SubjCopy[n][1][0]
+        n += 1
+        
+    return SubjCopy, optimal, totalValue, totalWork
+        
+    #def greedy(Items, maxWeight, keyFcn): 
+        #assert type(Items) == list and maxWeight >= 0 
+        #ItemsCopy = sorted(Items, key=keyFcn, reverse = True) 
+        #result = [] 
+        #totalVal = 0.0 
+        #totalWeight = 0.0 
+        #i = 0 
+        #while totalWeight < maxWeight and i < len(Items): 
+        #    if (totalWeight + ItemsCopy[i].getWeight()) <= maxWeight: 
+        #        result.append((ItemsCopy[i])) 
+        #        totalWeight += ItemsCopy[i].getWeight() 
+        #        totalVal += ItemsCopy[i].getValue() 
+        #    i += 1 
+        #return (result, totalVal)  
+#
+# Problem 3: Subject Selection By Brute Force
+#
+def bruteForceAdvisor(subjects, maxWork):
+    """
+    Returns a dictionary mapping subject name to (value, work), which
+    represents the globally optimal selection of subjects using a brute force
+    algorithm.
+
+    subjects: dictionary mapping subject name to (value, work)
+    maxWork: int >= 0
+    returns: dictionary mapping subject name to (value, work)
+    """
+    # TODO...
+
+

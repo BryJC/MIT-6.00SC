@@ -11,6 +11,8 @@ SUBJECT_FILENAME = "subjects.txt"
 SHORT_SUBJECT_FILENAME = "shortened_subjects.txt"
 VALUE, WORK = 0, 1
 
+
+from operator import itemgetter
 #
 # Problem 1: Building A Subject Dictionary
 #
@@ -95,7 +97,7 @@ def cmpRatio(subInfo1=(0,0), subInfo2=(0,0)):
         return True
     return False
 
-def greedyAdvisor(subjects, maxWork, comparator):
+def greedyAdvisor(subjects, maxWork, sort):
     """
     Returns a dictionary mapping subject name to (value, work) which includes
     subjects selected by the algorithm, such that the total work of subjects in
@@ -109,30 +111,34 @@ def greedyAdvisor(subjects, maxWork, comparator):
     """
     # TODO...
     assert type(subjects) == dict and maxWork >= 0
-    SubjCopy = []
-    for subj, val_work in subjects.iteritems():
-        if SubjCopy == []:
-            SubjCopy = [[subj, val_work]]
-        i = 0
-        while i < len(SubjCopy):
-            compare = comparator(SubjCopy[i], val_work)
-            if compare is True: # need a case where still True and run out of i
-                i += 1
-            elif compare is False:
-                SubjCopy.append([subj, val_work])                 
-    #optimal = {}
-    #totalValue= 0.0
-    #totalWork = 0.0
-    #n = 0    
-    #while totalWork < maxWork and i < len(SubjCopy):
-    #    if (totalWork + SubjCopy[n][1][1]) <= maxWeight:
-    #        optimal[SubjCopy[n][0]] = SubjCopy[n][1][1]
-    #        totalWeight += SubjCopy[n][1][1]
-    #        totalVal += SubjCopy[n][1][0]
-    #    n += 1
+    dict_to_tuplst = []
+    for name, val_wk in subjects.iteritems():
+        dict_to_tuplst.append((name, val_wk[0], val_wk[1]))
         
-    return SubjCopy
-    #, optimal, totalValue, totalWork
+    if sort == 'value':
+        keySort = lambda course: course[1]
+        toR = True
+    elif sort == 'work':
+        keySort = lambda course: course[2]
+        toR = False
+    elif sort == 'ratio':
+        keySort = lambda course: course[1] / float(course[2])
+        toR = True
+         
+    SubjCopy = sorted(dict_to_tuplst, key=keySort, reverse=toR)
+    # itemgetter?          
+    optimal = {}
+    totalVal= 0.0
+    totalWork = 0.0
+    n = 0    
+    while totalWork < maxWork and n < len(SubjCopy):
+        if (totalWork + SubjCopy[n][2]) <= maxWork:
+            optimal[SubjCopy[n][0]] = (SubjCopy[n][1], SubjCopy[n][2])
+            totalWork += SubjCopy[n][2]
+            totalVal += SubjCopy[n][1]
+        n += 1
+        
+    return optimal, totalVal, totalWork
         
     #def greedy(Items, maxWeight, keyFcn): 
         #assert type(Items) == list and maxWeight >= 0 

@@ -5,7 +5,7 @@
 
 #Code shared across examples
 import numpy as np, random, string, copy, math
-import matplotlib.pyplot as plt 
+import matplotlib.plot as plt 
 
 class Point(object):
     def __init__(self, name, originalAttrs, normalizedAttrs = None):

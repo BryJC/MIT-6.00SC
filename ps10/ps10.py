@@ -31,8 +31,7 @@ class Point(object):
         return self.name
 
 class County(Point):
-    weights = np.array([1.0] * 14)
-    weights[2] = 0.0
+    weights = np.array([1.0, 1.0, 0.0, 0.4, 0.1, 0.0, 0.0, 0.4, 0.3, 0.8, 1.0, 0.2, 0.5, 0.0])
     #turn off poverty weight, will be looking to see if we can find predictive power for this category 
     
     # Override Point.distance to use County.weights to decide the
@@ -299,7 +298,23 @@ def trackCounty(name, points, k=50, cutoff=0.1, pointType=County):
     return clusters_w_county
     #county is clustering with similar counties every time, seem to match on income education level, etc.
 
-def graphPredictionErr(points, dimension, kvals = [25, 50, 75, 100, 125, 150], cutoff = 0.1):
+def getAveragePoverty(cluster):
+    """
+    Given a Cluster object, finds the average poverty field over the members
+    of that cluster.
+    
+    cluster: the Cluster object to check
+    
+    Returns: a float representing the computed average income value
+    """
+    tot = 0.0
+    numElems = 0
+    for c in cluster.getPoints():
+        tot += c.getOriginalAttrs()[2]
+
+    return float(tot) / len(cluster.getPoints())
+
+def graphPredictionErr(points, dimension=14, kvals = [25, 50, 75, 100, 125, 150], cutoff = 0.1, plot=True, giveVals=False):
     """
     Given input points and a dimension to predict, should cluster on the
     appropriate values of k and graph the error in the resulting predictions,
@@ -307,8 +322,7 @@ def graphPredictionErr(points, dimension, kvals = [25, 50, 75, 100, 125, 150], c
     """
 
 	# Your Code Here
-    k_train_errors = []
-    k_hold_errors = []
+    k_poverty_errors = []
     
     for k in kvals:
         holdout, testing = randomPartition(points, 0.2)
@@ -316,37 +330,36 @@ def graphPredictionErr(points, dimension, kvals = [25, 50, 75, 100, 125, 150], c
         print ''
         clusters, maxSmallest = kmeans(testing, k, cutoff, County)
         
-        hold_error = 0.0
+        poverty_error = 0.0
         for p in holdout:
             smallestDist = p.distance(clusters[0].getCentroid())
+            closestCluster = clusters[0]
             for c in clusters:
                 if p.distance(c.getCentroid()) < smallestDist:
                     smallestDist = p.distance(c.getCentroid())
-            hold_error += smallestDist**2
+                    closestCluster = c
+            clusterAvgPov = getAveragePoverty(closestCluster)
+            poverty_error += (p.getOriginalAttrs()[2] - clusterAvgPov)**2
             
-        k_train_errors.append(train_error)
-        k_hold_errors.append(hold_error)
+        k_poverty_errors.append(poverty_error)
         
-    k_train_errors = np.array(k_train_errors)
-    k_hold_errors = np.array(k_hold_errors)
+    k_poverty_errors = np.array(k_poverty_errors)
         
     ###
     if plot:
-        plt.subplot(2, 1, 1)
-        plt.plot(kvals, k_train_errors, "r-")
-        plt.plot(kvals, k_hold_errors, "g-")
-        plt.title("Total Errors for k-means clustering: US County classification")
+        plt.plot(kvals, k_poverty_errors, "r-")
+        plt.title("Poverty error for k-means clustering: US County classification")
         plt.xlabel("k-values")
-        plt.ylabel("Total Error:\nTotal distance of points from center of cluster")
-        plt.legend(["Total Error for training set", "Total Error for holdout set"])
-        
-        plt.subplot(2, 1, 2)
-        plt.plot(kvals, k_hold_errors / k_train_errors, "b-")
-        plt.xlabel("k-values")
-        plt.ylabel("Total Error Ratio")
-        plt.legend(["Ratio of total errors:\nHoldout set error / Training set error"])
-        
+        plt.ylabel("Poverty Error:\nDistance of points from center of cluster")
+        plt.legend(["Poverty Error for holdout points\ncompared to training set\
+                        \nweights=[1.0, 1.0, 0.0, 0.1, 0.0, 0.2, 0.2, 0.4, 0.5, 0.8, 1.0, 0.2, 0.6, 0.0]"])
+       
         plt.show()
     
     if giveVals:
-        return k_train_errors, k_hold_errors
+        return k_poverty_errors
+    #increase k, and error decreases (~ predictive power is increasing for holdout cases)
+    #increasing number of clusters, more rep of differences in poverty levels
+    
+    #changing weight values can reduce errors of predictive models, diffiuclt in practice to know how to weigh multiple categories
+    #with poverty, factors directly influencing finances such as income, home value, degree status will have more of an effect.

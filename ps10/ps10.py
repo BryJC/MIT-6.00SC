@@ -32,6 +32,8 @@ class Point(object):
 
 class County(Point):
     weights = np.array([1.0] * 14)
+    weights[2] = 0.0
+    #turn off poverty weight, will be looking to see if we can find predictive power for this category 
     
     # Override Point.distance to use County.weights to decide the
     # significance of each dimension
@@ -222,21 +224,80 @@ def test(points, k = 200, cutoff = 0.1):
 
         
 points = buildCountyPoints('counties.txt')
-random.seed(123)
+#random.seed(123)
 testPoints = random.sample(points, len(points)/10)
 
-
+#########
+#########    
     
-    
-def graphRemovedErr(points, kvals = [25, 50, 75, 100, 125, 150], cutoff = 0.1):
+def graphRemovedErr(points, kvals = [25, 50, 75, 100, 125, 150], cutoff = 0.1, plot = True, giveVals = False):
     """
     Should produce graphs of the error in training and holdout point sets, and
     the ratio of the error of the points, after clustering for the given values of k.
     For details see Problem 1.
     """
-
     # Your Code Here
-
+    k_train_errors = []
+    k_hold_errors = []
+    
+    for k in kvals:
+        holdout, testing = randomPartition(points, 0.2)
+        
+        print ''
+        clusters, maxSmallest = kmeans(testing, k, cutoff, County)
+        
+        train_error = 0.0
+        for c in clusters:
+            for p in c.getPoints():
+                train_error += (p.distance(c.getCentroid()))**2
+        
+        hold_error = 0.0
+        for p in holdout:
+            smallestDist = p.distance(clusters[0].getCentroid())
+            for c in clusters:
+                if p.distance(c.getCentroid()) < smallestDist:
+                    smallestDist = p.distance(c.getCentroid())
+            hold_error += smallestDist**2
+            
+        k_train_errors.append(train_error)
+        k_hold_errors.append(hold_error)
+        
+    k_train_errors = np.array(k_train_errors)
+    k_hold_errors = np.array(k_hold_errors)
+        
+    ###
+    if plot:
+        plt.subplot(2, 1, 1)
+        plt.plot(kvals, k_train_errors, "r-")
+        plt.plot(kvals, k_hold_errors, "g-")
+        plt.title("Total Errors for k-means clustering: US County classification")
+        plt.xlabel("k-values")
+        plt.ylabel("Total Error:\nTotal distance of points from center of cluster")
+        plt.legend(["Total Error for training set", "Total Error for holdout set"])
+        
+        plt.subplot(2, 1, 2)
+        plt.plot(kvals, k_hold_errors / k_train_errors, "b-")
+        plt.xlabel("k-values")
+        plt.ylabel("Total Error Ratio")
+        plt.legend(["Ratio of total errors:\nHoldout set error / Training set error"])
+        
+        plt.show()
+    
+    if giveVals:
+        return k_train_errors, k_hold_errors
+    #graph shows drop in error for training and holdout as k increases, though training drops quicker (training becomes more precise)
+    
+def trackCounty(name, points, k=50, cutoff=0.1, pointType=County):
+    
+    clusters_w_county = {}
+    for i in xrange(3):
+        clusters, maxSmallest = kmeans(points, k, cutoff, County)
+        
+        for c in clusters:
+            if c.contains(name) == True:
+                clusters_w_county["Cluster {}".format(i)] = c.__str__()
+    return clusters_w_county
+    #county is clustering with similar counties every time, seem to match on income education level, etc.
 
 def graphPredictionErr(points, dimension, kvals = [25, 50, 75, 100, 125, 150], cutoff = 0.1):
     """
@@ -246,4 +307,46 @@ def graphPredictionErr(points, dimension, kvals = [25, 50, 75, 100, 125, 150], c
     """
 
 	# Your Code Here
+    k_train_errors = []
+    k_hold_errors = []
     
+    for k in kvals:
+        holdout, testing = randomPartition(points, 0.2)
+        
+        print ''
+        clusters, maxSmallest = kmeans(testing, k, cutoff, County)
+        
+        hold_error = 0.0
+        for p in holdout:
+            smallestDist = p.distance(clusters[0].getCentroid())
+            for c in clusters:
+                if p.distance(c.getCentroid()) < smallestDist:
+                    smallestDist = p.distance(c.getCentroid())
+            hold_error += smallestDist**2
+            
+        k_train_errors.append(train_error)
+        k_hold_errors.append(hold_error)
+        
+    k_train_errors = np.array(k_train_errors)
+    k_hold_errors = np.array(k_hold_errors)
+        
+    ###
+    if plot:
+        plt.subplot(2, 1, 1)
+        plt.plot(kvals, k_train_errors, "r-")
+        plt.plot(kvals, k_hold_errors, "g-")
+        plt.title("Total Errors for k-means clustering: US County classification")
+        plt.xlabel("k-values")
+        plt.ylabel("Total Error:\nTotal distance of points from center of cluster")
+        plt.legend(["Total Error for training set", "Total Error for holdout set"])
+        
+        plt.subplot(2, 1, 2)
+        plt.plot(kvals, k_hold_errors / k_train_errors, "b-")
+        plt.xlabel("k-values")
+        plt.ylabel("Total Error Ratio")
+        plt.legend(["Ratio of total errors:\nHoldout set error / Training set error"])
+        
+        plt.show()
+    
+    if giveVals:
+        return k_train_errors, k_hold_errors

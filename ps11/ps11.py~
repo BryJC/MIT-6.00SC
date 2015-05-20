@@ -6,7 +6,7 @@
 # Finding shortest paths through MIT buildings
 #
 
-from string import split
+from string import split, splitlines
 from graph import Digraph, Edge, Node
 
 #

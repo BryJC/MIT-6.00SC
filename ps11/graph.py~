@@ -35,7 +35,7 @@ class Digraph(object):
    A directed graph
    """
    def __init__(self):
-       self.nodes = set([])
+       self.nodes = []
        self.edges = {}
    def addNode(self, node):
        if node in self.nodes:

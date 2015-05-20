@@ -1,44 +1,39 @@
-# 6.00 Problem Set 11
-#
-# ps11.py
-#
-# Graph optimization
-# Finding shortest paths through MIT buildings
-#
 
 from string import split
-from graph import Digraph, Edge, Node
+from graph import WeightedDigraph as WD, Digraph, WeightedEdge as WE, Edge, Node
+ 
 
-#
-# Problem 2: Building up the Campus Map
-#
-# Write a couple of sentences describing how you will model the
-# problem as a graph)
-#
-#Nodes = buildings ( 0 & 1 )
-#Edges = distances ( (2,3) )
-
-def load_map(mapFilename):
-    """ 
-    Parses the map file and constructs a directed graph
-
-    Parameters: 
-        mapFilename : name of the map file
-
-    Assumes:
-        Each entry in the map file consists of the following four positive 
-        integers, separated by a blank space:
-            From To TotalDistance DistanceOutdoors
-        e.g.
-            32 76 54 23
-        This entry would become an edge from 32 to 76.
-
-    Returns:
-        a directed graph representing the map
-    """
+def load_map(mapFname):
     #TODO
     print "Loading map from file..."
-
+    dataFile = open(mapFname, 'r') #open mit_map.txt in read-only mode, assign it to dataFile variable
+    
+    travel_map = WD() #create empty weighted directed graph
+    
+    node_dic = {}
+    edge_list = []
+    
+    for line in dataFile:
+        if len(line) == 0 or line[0] == '#': #skip null or comment lines
+            continue
+        src, dest, distance, outside_distance = line.split() #pull relevant data from line
+        
+        if src not in node_dic:
+            node_dic[src] = Node(src)
+        if dest not in node_dic:
+            node_dic[dest] = Node(dest)
+        
+        edge_list.append((src, dest, distance, outside_distance))
+        
+    for edge in edge_list:
+        start = node_dic[edge[0]] 
+        end = node_dic[edge[1]]
+        WEdge = WE(start, end, edge[2], edge[3])
+        travel_map.addEdge(WEdge)
+        
+    dataFile.close()
+        
+    return travel_map
     
 
 #
@@ -48,32 +43,33 @@ def load_map(mapFilename):
 # and the constraints
 #
 
-def bruteForceSearch(digraph, start, end, maxTotalDist, maxDistOutdoors):    
-    """
-    Finds the shortest path from start to end using brute-force approach.
-    The total distance travelled on the path must not exceed maxTotalDist, and
-    the distance spent outdoor on this path must not exceed maxDisOutdoors.
+def bruteForceSearch(map_digraph, start, end, maxTotalDist, maxDistOutdoors, visited = [], toPrint = True):    
 
-    Parameters: 
-        digraph: instance of class Digraph or its subclass
-        start, end: start & end building numbers (strings)
-        maxTotalDist : maximum total distance on a path (integer)
-        maxDistOutdoors: maximum distance spent outdoors on a path (integer)
-
-    Assumes:
-        start and end are numbers for existing buildings in graph
-
-    Returns:
-        The shortest-path from start to end, represented by 
-        a list of building numbers (in strings), [n_1, n_2, ..., n_k], 
-        where there exists an edge from n_i to n_(i+1) in digraph, 
-        for all 1 <= i < k.
-
-        If there exists no path that satisfies maxTotalDist and
-        maxDistOutdoors constraints, then raises a ValueError.
-    """
     #TODO
-    pass
+    if toPrint: 
+        print start, end 
+    if not (map_digraph.hasNode(start) and map_digraph.hasNode(end)): 
+        raise ValueError('Start or end building not in graph.') 
+    path = [str(start)] 
+    if start == end: 
+        return path 
+    shortest = None 
+    for building in map_digraph.childrenOf(start):
+    #here building == a tuple (child, weight, sub_weight) 
+        if (str(building[0]) not in visited): 
+            visited = visited + [str(building[0])] #new list
+            if toPrint:
+                print visited 
+            newPath = shortestPath(map_graph, building[0], end, visited, toPrint) 
+            if newPath == None: 
+                continue 
+            if (shortest == None or len(newPath) < len(shortest)): 
+                shortest = newPath 
+    if shortest != None: 
+        path = path + shortest 
+    else: 
+        path = None 
+    return path 
 
 #
 # Problem 4: Finding the Shorest Path using Optimized Search Method

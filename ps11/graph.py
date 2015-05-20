@@ -18,6 +18,8 @@ class Node(object):
       return self.name == other.name
    def __ne__(self, other):
       return not self.__eq__(other)
+   def __hash__(self):
+       return hash(self.getName) 
 
 class Edge(object):
    def __init__(self, src, dest):

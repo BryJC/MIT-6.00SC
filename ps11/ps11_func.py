@@ -77,7 +77,7 @@ def bruteForceSearch(map_digraph, start, end, maxTotalDist, maxDistOutdoors, vis
 # Problem 4: Finding the Shorest Path using Optimized Search Method
 #
 def directedDFS(digraph, start, end, maxTotalDist, maxDistOutdoors):
-    """
+    """ 
     Finds the shortest path from start to end using directed depth-first.
     search approach. The total distance travelled on the path must not
     exceed maxTotalDist, and the distance spent outdoor on this path must

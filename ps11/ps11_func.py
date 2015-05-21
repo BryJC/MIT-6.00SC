@@ -77,15 +77,15 @@ def bruteForceSearch(map_graph, start, end, maxTotalDist, maxDistOutdoors, visit
             if newPath == None: 
                 continue
                 
-            currentPath, outdoor=map_graph.calcPathLength(path + newPath)   #if we did find a way thru  
+            currentPath, outdoor = map_graph.calcPathLength(path + newPath)   #if we did find a way thru  
             if outdoor > maxDistOutdoors or currentPath > maxTotalDist:  #check to see if its too long
                 visited.remove(str(destination))                         #necessary to avoid skipping over previously checked paths...
                 continue
                 
-            #currentPath, outdoor=map_graph.calcPathLength(newPath)         #if we made it thru AND it wasn't too big
+            currentPath, outdoor=map_graph.calcPathLength(newPath)         #if we made it thru AND it wasn't too big
             if bestPath == None or (currentPath < bestPath):             #check to see if first time to get this far on this level, 
                 shortest = newPath                                       #OR if currentPath shorter than best path found so far
-                bestPath = outdoor=map_graph.calcPathLength(path + newPath)       #and if so, update things accordingly 
+                bestPath, outdoor = map_graph.calcPathLength(path + newPath)       #and if so, update things accordingly 
                 
     if shortest != None: 
         path = path + shortest 
@@ -96,33 +96,60 @@ def bruteForceSearch(map_graph, start, end, maxTotalDist, maxDistOutdoors, visit
 #
 # Problem 4: Finding the Shorest Path using Optimized Search Method
 #
-def directedDFS(digraph, start, end, maxTotalDist, maxDistOutdoors):
-    """ 
-    Finds the shortest path from start to end using directed depth-first.
-    search approach. The total distance travelled on the path must not
-    exceed maxTotalDist, and the distance spent outdoor on this path must
-	not exceed maxDisOutdoors.
-
-    Parameters: 
-        digraph: instance of class Digraph or its subclass
-        start, end: start & end building numbers (strings)
-        maxTotalDist : maximum total distance on a path (integer)
-        maxDistOutdoors: maximum distance spent outdoors on a path (integer)
-
-    Assumes:
-        start and end are numbers for existing buildings in graph
-
-    Returns:
-        The shortest-path from start to end, represented by 
-        a list of building numbers (in strings), [n_1, n_2, ..., n_k], 
-        where there exists an edge from n_i to n_(i+1) in digraph, 
-        for all 1 <= i < k.
-
-        If there exists no path that satisfies maxTotalDist and
-        maxDistOutdoors constraints, then raises a ValueError.
-    """
+def directedDFS(map_graph, start, end, maxTotalDist, maxDistOutdoors, visited = None, memo = None, toPrint = False):
     #TODO
-    pass
+    if visited == None:
+        visited = []
+    if memo == None:
+        memo = {}
+    if toPrint: 
+        print start, end 
+        
+    if not (map_graph.hasNode(start) and map_graph.hasNode(end)): 
+        raise ValueError('Start or end building not in graph.') 
+    path = [start] 
+    if start == end: 
+        return path         
+    shortest = None
+    bestPath = None
+     
+    for node in map_graph.childrenOf(start):
+    #here building == a tuple (child, weight, sub_weight) 
+        destination = node[0]
+        
+        if (str(destination) not in visited): 
+            visited = visited + [str(destination)] #new list
+            if toPrint:
+                print visited
+            try:
+                newPath = memo[destination, end]
+            except:     
+                newPath = bruteForceSearch(map_graph, destination, end, maxTotalDist, maxDistOutdoors, visited, toPrint)
+             
+            if newPath == None: 
+                continue
+                
+            currentPath, outdoor = map_graph.calcPathLength(path + newPath)   #if we did find a way thru  
+            if outdoor > maxDistOutdoors or currentPath > maxTotalDist:  #check to see if its too long
+                visited.remove(str(destination))                         #necessary to avoid skipping over previously checked paths...
+                try:
+                    del(memo[destination, end])
+                except:
+                    pass
+                continue
+                
+            #currentPath, outdoor=map_graph.calcPathLength(newPath)         #if we made it thru AND it wasn't too big
+            if bestPath == None or (currentPath < bestPath):             #check to see if first time to get this far on this level, 
+                shortest = newPath                                       #OR if currentPath shorter than best path found so far
+                bestPath, outdoor = map_graph.calcPathLength(path + newPath)       #and if so, update things accordingly 
+                memo[destination, end] = newPath
+
+                
+    if shortest != None: 
+        path = path + shortest 
+    else:   
+        path = None 
+    return path 
 
 # Uncomment below when ready to test
 ##if __name__ == '__main__':

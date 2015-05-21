@@ -18,8 +18,8 @@ class Node(object):
       return self.name == other.name
    def __ne__(self, other):
       return not self.__eq__(other)
-   #def __hash__(self):
-    #   return hash(self.getName) 
+   def __hash__(self):
+       return hash(self.name) 
 
 class Edge(object):
    def __init__(self, src, dest):
@@ -37,13 +37,13 @@ class Digraph(object):
    A directed graph
    """
    def __init__(self):
-       self.nodes = set([])
+       self.nodes = []
        self.edges = {}
    def addNode(self, node):
        if node in self.nodes:
-           raise ValueError('Duplicate node')
+           raise ValueError ("Duplicate Node")
        else:
-           self.nodes.add(node)
+           self.nodes.append(node)
            self.edges[node] = []
    def addEdge(self, edge):
        src = edge.getSource()
@@ -54,7 +54,10 @@ class Digraph(object):
    def childrenOf(self, node):
        return self.edges[node]
    def hasNode(self, node):
-       return node in self.nodes
+       for i in self.nodes:
+           if i == node:
+               return True
+       return False
    def __str__(self):
        res = ''
        for k in self.edges:
@@ -99,6 +102,17 @@ class WeightedDigraph(Digraph):
         swgt = edge.getSubWeight()
         if not(src in self.nodes and dest in self.nodes):
             raise ValueError('Node not in graph')
-        self.edges[src].append((dest, wgt, swgt))      
+        self.edges[src].append((dest, wgt, swgt))
+    def calcPathLength(self, path):
+        #need to add up distance and outside distance
+        length = 0.0
+        outside = 0.0
+        for i in xrange(len(path)-1):
+            start = self.edges[path[i]]
+            for j in start:
+                if j[0] == path[i+1]:
+                    length += j[1]
+                    outside += j[2]
+                
         
 ###___###___###___###___###        

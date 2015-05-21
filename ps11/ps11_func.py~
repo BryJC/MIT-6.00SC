@@ -1,6 +1,6 @@
 
 from string import split
-from graph import WeightedDigraph as WD, Digraph, WeightedEdge as WE, Edge, Node, Compare
+from graph import WeightedDigraph as WD, Digraph, WeightedEdge as WE, Edge, Node
  
 
 def load_map(mapFname):
@@ -45,31 +45,51 @@ def load_map(mapFname):
 # and the constraints
 #
 
-def bruteForceSearch(map_digraph, start, end, maxTotalDist, maxDistOutdoors, visited = [], toPrint = True):    
-
+import time, sys 
+sys.setrecursionlimit(20000)
+ 
+def bruteForceSearch(map_graph, start, end, maxTotalDist, maxDistOutdoors, visited = None, toPrint = False):    
     #TODO
+    if visited = None:
+        visited = []
     if toPrint: 
         print start, end 
-    if not (map_digraph.hasNode(start) and map_digraph.hasNode(end)): 
+        
+    if not (map_graph.hasNode(start) and map_graph.hasNode(end)): 
         raise ValueError('Start or end building not in graph.') 
-    path = [str(start)] 
+    path = [start] 
     if start == end: 
-        return path 
-    shortest = None 
-    for building in map_digraph.childrenOf(start):
+        return path         
+    shortest = None
+    bestPath = None
+     
+    for node in map_graph.childrenOf(start):
     #here building == a tuple (child, weight, sub_weight) 
-        if (str(building[0]) not in visited): 
-            visited = visited + [str(building[0])] #new list
+        destination = node[0]
+        
+        if (str(destination) not in visited): 
+            visited = visited + [str(destination)] #new list
             if toPrint:
-                print visited 
-            newPath = shortestPath(map_graph, building[0], end, visited, toPrint) 
+                print visited
+                 
+            newPath = bruteForceSearch(map_graph, destination, end, maxTotalDist, maxDistOutdoors, visited, toPrint)
+             
             if newPath == None: 
-                continue 
-            if (shortest == None or len(newPath) < len(shortest)): 
-                shortest = newPath 
+                continue
+                
+            currentPath, outdoor=map_graph.calcPathLength(path + newPath)   #if we did find a way thru  
+            if outdoor > maxDistOutdoors or currentPath > maxTotalDist:  #check to see if its too long
+                visited.remove(str(destination))                         #necessary to avoid skipping over previously checked paths...
+                continue
+                
+            #currentPath, outdoor=map_graph.calcPathLength(newPath)         #if we made it thru AND it wasn't too big
+            if bestPath == None or (currentPath < bestPath):             #check to see if first time to get this far on this level, 
+                shortest = newPath                                       #OR if currentPath shorter than best path found so far
+                bestPath = outdoor=map_graph.calcPathLength(path + newPath)       #and if so, update things accordingly 
+                
     if shortest != None: 
         path = path + shortest 
-    else: 
+    else:   
         path = None 
     return path 
 

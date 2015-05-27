@@ -78,11 +78,11 @@ def bruteForceSearch(map_graph, start, end, maxTotalDist, maxDistOutdoors, visit
                 continue
                 
             currentPath, outdoor = map_graph.calcPathLength(path + newPath)   #if we did find a way thru  
-            if outdoor > maxDistOutdoors or currentPath > maxTotalDist:  #check to see if its too long
-                visited.remove(str(destination))                         #necessary to avoid skipping over previously checked paths...
+            if outdoor > maxDistOutdoors or currentPath > maxTotalDist:       #check to see if its too long
+                visited.remove(str(destination))                              #necessary to avoid skipping previously checked paths...
                 continue
                 
-            #currentPath, outdoor=map_graph.calcPathLength(newPath)         #if we made it thru AND it wasn't too big
+                                                                         #if we made it thru AND it wasn't too big
             if bestPath == None or (currentPath < bestPath):             #check to see if first time to get this far on this level, 
                 shortest = newPath                                       #OR if currentPath shorter than best path found so far
                 bestPath, outdoor = map_graph.calcPathLength(path + newPath)       #and if so, update things accordingly 
@@ -129,16 +129,15 @@ def directedDFS(map_graph, start, end, maxTotalDist, maxDistOutdoors, visited = 
             if newPath == None: 
                 continue
                 
-            currentPath, outdoor = map_graph.calcPathLength(path + newPath)   #if we did find a way thru  
-            if outdoor > maxDistOutdoors or currentPath > maxTotalDist:  #check to see if its too long
-                visited.remove(str(destination))                         #necessary to avoid skipping over previously checked paths...
-                try:
-                    del(memo[destination, end])
-                except:
+            currentPath, outdoor = map_graph.calcPathLength(path + newPath) #if we did find a way thru  
+            if (outdoor > maxDistOutdoors) or (currentPath > maxTotalDist):  #check to see if its too long
+                visited.remove(str(destination))                             #necessary to avoid skipping previously checked paths...
+                try:                                                        #needed because of earlier try/except clause:
+                    del(memo[destination, end])                              #remove this segment so it cannot accidentally be called
+                except:                                                      #as shortest path
                     pass
                 continue
-                
-            #currentPath, outdoor=map_graph.calcPathLength(newPath)         #if we made it thru AND it wasn't too big
+                                                                        #if we made it thru AND it wasn't too big
             if bestPath == None or (currentPath < bestPath):             #check to see if first time to get this far on this level, 
                 shortest = newPath                                       #OR if currentPath shorter than best path found so far
                 bestPath, outdoor = map_graph.calcPathLength(path + newPath)       #and if so, update things accordingly 

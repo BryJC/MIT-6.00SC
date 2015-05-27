@@ -72,7 +72,7 @@ def bruteForceSearch(map_graph, start, end, maxTotalDist, maxDistOutdoors, visit
             if toPrint:
                 print visited
                  
-            newPath = bruteForceSearch(map_graph, destination, end, maxTotalDist, maxDistOutdoors, visited, toPrint)
+            newPath = bruteForceSearch(map_graph, destination, end, maxTotalDist, maxDistOutdoors, visited, toPrint, counter += 1)
              
             if newPath == None: 
                 continue
@@ -90,13 +90,14 @@ def bruteForceSearch(map_graph, start, end, maxTotalDist, maxDistOutdoors, visit
     if shortest != None: 
         path = path + shortest 
     else:   
+        if counter == 0: raise ValueError
         path = None 
     return path 
 
 #
 # Problem 4: Finding the Shorest Path using Optimized Search Method
 #
-def directedDFS(map_graph, start, end, maxTotalDist, maxDistOutdoors, visited = None, memo = None, toPrint = False):
+def directedDFS(map_graph, start, end, maxTotalDist, maxDistOutdoors, visited = None, memo = None, toPrint = False, counter = 0):
     #TODO
     if visited == None:
         visited = []
@@ -124,7 +125,7 @@ def directedDFS(map_graph, start, end, maxTotalDist, maxDistOutdoors, visited = 
             try:
                 newPath = memo[destination, end]
             except:     
-                newPath = bruteForceSearch(map_graph, destination, end, maxTotalDist, maxDistOutdoors, visited, toPrint)
+                newPath = bruteForceSearch(map_graph, destination, end, maxTotalDist, maxDistOutdoors, visited, toPrint, counter += 1)
              
             if newPath == None: 
                 continue
@@ -134,7 +135,7 @@ def directedDFS(map_graph, start, end, maxTotalDist, maxDistOutdoors, visited = 
                 visited.remove(str(destination))                             #necessary to avoid skipping previously checked paths...
                 try:                                                        #needed because of earlier try/except clause:
                     del(memo[destination, end])                              #remove this segment so it cannot accidentally be called
-                except:                                                      #as shortest path
+                except:                                                      #as shortest path during subsequent calls
                     pass
                 continue
                                                                         #if we made it thru AND it wasn't too big
@@ -147,6 +148,7 @@ def directedDFS(map_graph, start, end, maxTotalDist, maxDistOutdoors, visited = 
     if shortest != None: 
         path = path + shortest 
     else:   
+        if counter == 0: raise ValueError
         path = None 
     return path 
 
